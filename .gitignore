@@ -17,9 +17,8 @@ venv/
 .databricks/
 scratch/
 
-# Sensitive Local Configuration & Published Templates
-ARMTemplateForFactory.json
-ARMTemplateParametersForFactory.json
+# Ignore all JSON files
+*.json
 
 # OS generated files
 .DS_Store
