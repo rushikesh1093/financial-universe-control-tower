@@ -15,6 +15,12 @@ venv/
 # IDE & Tooling
 .vscode/
 .databricks/
+scratch/
+
+# Sensitive Local Configuration & Published Templates
+publish_config.json
+ARMTemplateForFactory.json
+ARMTemplateParametersForFactory.json
 
 # OS generated files
 .DS_Store
@@ -25,5 +31,3 @@ Thumbs.db
 
 # Data Lake raw Landing
 bronze/
-
-
