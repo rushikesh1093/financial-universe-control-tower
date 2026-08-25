@@ -18,7 +18,6 @@ venv/
 scratch/
 
 # Sensitive Local Configuration & Published Templates
-publish_config.json
 ARMTemplateForFactory.json
 ARMTemplateParametersForFactory.json
 
