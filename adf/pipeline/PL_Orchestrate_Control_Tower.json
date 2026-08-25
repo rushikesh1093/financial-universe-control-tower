@@ -1,7 +1,7 @@
 {
 	"name": "PL_Orchestrate_Control_Tower",
 	"properties": {
-		"description": "Master orchestration pipeline triggering ingestion and Databricks PySpark transformation notebooks for the Financial Universe Control Tower",
+		"description": "Master orchestration pipeline in Azure Data Factory. Ingests raw source data into ADLS Gen2 Bronze, then triggers the Databricks transformation workflow pipeline.",
 		"activities": [
 			{
 				"name": "Execute_Ingestion_Pipeline",
@@ -23,16 +23,18 @@
 				}
 			},
 			{
-				"name": "Databricks_00_Setup",
+				"name": "Databricks_Transformation_Pipeline",
 				"type": "DatabricksNotebook",
 				"dependsOn": [
 					{
 						"activity": "Execute_Ingestion_Pipeline",
-						"dependencyConditions": ["Succeeded"]
+						"dependencyConditions": [
+							"Succeeded"
+						]
 					}
 				],
 				"policy": {
-					"timeout": "0.00:30:00",
+					"timeout": "0.02:00:00",
 					"retry": 2,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
@@ -40,209 +42,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/00_setup",
+					"notebookPath": "/databricks/notebooks/00_setup.ipynb",
 					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_AzureDatabricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Databricks_01_Source_Profiling",
-				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "Databricks_00_Setup",
-						"dependencyConditions": ["Succeeded"]
-					}
-				],
-				"policy": {
-					"timeout": "0.00:30:00",
-					"retry": 2,
-					"retryIntervalInSeconds": 30
-				},
-				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/01_source_profiling",
-					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_AzureDatabricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Databricks_02_Bronze_Ingestion",
-				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "Databricks_01_Source_Profiling",
-						"dependencyConditions": ["Succeeded"]
-					}
-				],
-				"policy": {
-					"timeout": "0.00:45:00",
-					"retry": 2,
-					"retryIntervalInSeconds": 30
-				},
-				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/02_bronze_ingestion",
-					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_AzureDatabricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Databricks_03_Schema_Standardization",
-				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "Databricks_02_Bronze_Ingestion",
-						"dependencyConditions": ["Succeeded"]
-					}
-				],
-				"policy": {
-					"timeout": "0.00:45:00",
-					"retry": 2,
-					"retryIntervalInSeconds": 30
-				},
-				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/03_schema_standardization",
-					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_AzureDatabricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Databricks_04_Master_Data",
-				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "Databricks_03_Schema_Standardization",
-						"dependencyConditions": ["Succeeded"]
-					}
-				],
-				"policy": {
-					"timeout": "0.01:00:00",
-					"retry": 2,
-					"retryIntervalInSeconds": 30
-				},
-				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/04_master_data",
-					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_AzureDatabricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Databricks_05_Data_Quality",
-				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "Databricks_04_Master_Data",
-						"dependencyConditions": ["Succeeded"]
-					}
-				],
-				"policy": {
-					"timeout": "0.00:45:00",
-					"retry": 2,
-					"retryIntervalInSeconds": 30
-				},
-				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/05_data_quality",
-					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_AzureDatabricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Databricks_06_Change_Detection",
-				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "Databricks_05_Data_Quality",
-						"dependencyConditions": ["Succeeded"]
-					}
-				],
-				"policy": {
-					"timeout": "0.01:00:00",
-					"retry": 2,
-					"retryIntervalInSeconds": 30
-				},
-				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/06_change_detection",
-					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_AzureDatabricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Databricks_07_Gold_Processing",
-				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "Databricks_06_Change_Detection",
-						"dependencyConditions": ["Succeeded"]
-					}
-				],
-				"policy": {
-					"timeout": "0.00:45:00",
-					"retry": 2,
-					"retryIntervalInSeconds": 30
-				},
-				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/07_gold_processing",
-					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
-					}
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_AzureDatabricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Databricks_08_SQL_Views",
-				"type": "DatabricksNotebook",
-				"dependsOn": [
-					{
-						"activity": "Databricks_07_Gold_Processing",
-						"dependencyConditions": ["Succeeded"]
-					}
-				],
-				"policy": {
-					"timeout": "0.00:30:00",
-					"retry": 2,
-					"retryIntervalInSeconds": 30
-				},
-				"typeProperties": {
-					"notebookPath": "/databricks/notebooks/08_sql_views",
-					"baseParameters": {
-						"snapshot_date": "@pipeline().parameters.snapshotDate"
+						"snapshot_date": "@pipeline().parameters.snapshotDate",
+						"run_full_pipeline": "true"
 					}
 				},
 				"linkedServiceName": {
@@ -261,6 +64,6 @@
 				"defaultValue": "dev"
 			}
 		},
-		"annotations": ["Master", "Orchestration", "ControlTower"]
+		"annotations": ["Master", "Orchestration", "ControlTower", "DatabricksJob"]
 	}
 }
