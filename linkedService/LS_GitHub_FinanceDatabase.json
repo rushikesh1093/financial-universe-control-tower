@@ -1,14 +1,17 @@
 {
 	"name": "LS_GitHub_FinanceDatabase",
-	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"description": "HTTP Linked Service connecting to raw GitHub FinanceDatabase repository datasets",
-		"annotations": ["FinanceDatabase", "Source"],
+		"annotations": [
+			"FinanceDatabase",
+			"Source"
+		],
 		"type": "HttpServer",
 		"typeProperties": {
-			"url": "https://raw.githubusercontent.com/jerbouma/FinanceDatabase/main/",
+			"url": "https://raw.githubusercontent.com/jerbouma/FinanceDatabase/main/database",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
 }
