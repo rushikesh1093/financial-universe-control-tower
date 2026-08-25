@@ -47,6 +47,22 @@ flowchart TD
 
 ---
 
+## Production Execution Architecture Screenshots
+
+### 1. Azure Data Factory Master Orchestration (`PL_Orchestrate_Control_Tower`)
+![ADF Master Orchestration Pipeline](../powerbi/screenshots/adf_orchestration_pipeline.png)
+
+### 2. Azure Data Factory Metadata-Driven Ingestion (`PL_Metadata_Driven_Ingestion`)
+![ADF Metadata-Driven Ingestion Pipeline](../powerbi/screenshots/adf_ingestion_pipeline.png)
+
+### 3. Databricks Multi-Task Workflow Job (`Financial Universe Control Tower`)
+![Databricks Multi-Task Workflow Job](../powerbi/screenshots/databricks_workflow_job.png)
+
+### 4. Databricks Workspace Notebooks (`databricks/notebooks/`)
+![Databricks Workspace Notebooks](../powerbi/screenshots/databricks_workspace_notebooks.png)
+
+---
+
 ## 2. Layer-by-Layer Architectural Breakdown
 
 ### 2.1 Bronze Layer (Immutable Raw Landing)

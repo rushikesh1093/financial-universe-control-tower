@@ -30,6 +30,23 @@ The workflow pipeline is defined declaratively in `resources/financial_universe_
 
 ---
 
+## Pipeline Execution Screenshots
+
+### 1. Azure Data Factory Master Orchestration Pipeline (`PL_Orchestrate_Control_Tower`)
+![ADF Master Orchestration Pipeline](../powerbi/screenshots/adf_orchestration_pipeline.png)
+
+### 2. Azure Data Factory Metadata-Driven Ingestion Pipeline (`PL_Metadata_Driven_Ingestion`)
+![ADF Metadata-Driven Ingestion Pipeline](../powerbi/screenshots/adf_ingestion_pipeline.png)
+
+### 3. Databricks Multi-Task Workflow Job Pipeline (`Financial Universe Control Tower`)
+![Databricks Multi-Task Workflow Job](../powerbi/screenshots/databricks_workflow_job.png)
+
+### 4. Databricks Workspace Notebooks (`notebooks/`)
+![Databricks Workspace Notebooks](../powerbi/screenshots/databricks_workspace_notebooks.png)
+
+
+---
+
 ## 2. Dynamic Asset Class Routing (Column Signature Analysis)
 
 ### The Profiling Problem:

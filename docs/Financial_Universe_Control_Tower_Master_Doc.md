@@ -123,6 +123,21 @@ Gold Delta              Azure SQL
 Financial Universe Control Tower
 ```
 
+### Production Execution Architecture Screenshots
+
+#### Azure Data Factory Master Orchestration (`PL_Orchestrate_Control_Tower`)
+![ADF Master Orchestration Pipeline](../powerbi/screenshots/adf_orchestration_pipeline.png)
+
+#### Azure Data Factory Metadata-Driven Ingestion (`PL_Metadata_Driven_Ingestion`)
+![ADF Metadata-Driven Ingestion Pipeline](../powerbi/screenshots/adf_ingestion_pipeline.png)
+
+#### Databricks Multi-Task Workflow Job (`Financial Universe Control Tower`)
+![Databricks Multi-Task Workflow Job](../powerbi/screenshots/databricks_workflow_job.png)
+
+#### Databricks Workspace Notebooks (`databricks/notebooks/`)
+![Databricks Workspace Notebooks](../powerbi/screenshots/databricks_workspace_notebooks.png)
+
+
 ---
 
 ## 6. Azure Services to Use
