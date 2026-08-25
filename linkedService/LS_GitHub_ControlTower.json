@@ -6,7 +6,7 @@
 		"annotations": ["ControlTower", "Metadata"],
 		"type": "HttpServer",
 		"typeProperties": {
-			"url": "https://raw.githubusercontent.com/rushikesh1093/financial-universe-control-tower/main/",
+			"url": "https://raw.githubusercontent.com/jerbouma/FinanceDatabase/main/",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
