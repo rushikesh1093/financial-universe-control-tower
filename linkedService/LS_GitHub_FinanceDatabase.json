@@ -8,7 +8,7 @@
 		],
 		"type": "HttpServer",
 		"typeProperties": {
-			"url": "https://raw.githubusercontent.com/jerbouma/FinanceDatabase/main/database",
+			"url": "https://raw.githubusercontent.com/",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}
