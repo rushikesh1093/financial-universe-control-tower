@@ -1,0 +1,77 @@
+# Databricks Asset Bundle - Financial Universe Control Tower
+#
+# Deploy:
+#   databricks bundle validate -t dev
+#   databricks bundle deploy   -t dev
+#   databricks bundle run financial_universe_pipeline -t dev
+#
+# See docs/SETUP.md for the full first-run walkthrough, including uploading
+# bronze/data to the Unity Catalog volume.
+
+bundle:
+  name: financial_universe_control_tower
+
+# Only these paths are synced to the workspace. bronze/data is deliberately
+# excluded - 40 MB of CSVs belongs in a volume, not in the workspace file tree.
+sync:
+  include:
+    - databricks/**
+    - docs/**
+    - tests/**
+  exclude:
+    - bronze/**
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+    - "*.pdf"
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog that holds the medallion schemas.
+    default: azurelearn
+  volume:
+    description: Volume under <catalog>.bronze that holds the raw CSV snapshots.
+    default: landing
+  storage_root:
+    # Backed by the existing Unity Catalog external location "project"
+    # (credential "financial-databricks", an Azure managed identity), so no
+    # account key or SAS token appears anywhere in this repo.
+    description: ADLS Gen2 container root for the medallion layers.
+    default: abfss://destination@learnazure11.dfs.core.windows.net
+  source_root:
+    description: Landing area holding the raw CSV snapshots.
+    default: abfss://destination@learnazure11.dfs.core.windows.net/bronze
+  silver_root:
+    description: Where standardised silver Delta tables are stored.
+    default: abfss://destination@learnazure11.dfs.core.windows.net/silver
+  gold_root:
+    description: Where published gold Delta tables are stored.
+    default: abfss://destination@learnazure11.dfs.core.windows.net/gold
+  quarantine_root:
+    description: Where rejected records are stored.
+    default: abfss://destination@learnazure11.dfs.core.windows.net/quarantine
+  # No compute variables: this workspace accepts serverless compute only, so the
+  # job declares no cluster. See the note at the top of
+  # resources/financial_universe_pipeline.job.yml.
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405610285210936.16.azuredatabricks.net
+    variables:
+      catalog: azurelearn
+
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-7405610285210936.16.azuredatabricks.net
+      root_path: /Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: azurelearn
+    permissions:
+      - level: CAN_VIEW
+        group_name: users
