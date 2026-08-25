@@ -87,19 +87,19 @@
 									"additionalColumns": [
 										{
 											"name": "ingestion_timestamp",
-											"value": "$$PAYLOAD:utcnow()"
+											"value": "@utcnow()"
 										},
 										{
 											"name": "pipeline_run_id",
-											"value": "$$PAYLOAD:pipeline().RunId"
+											"value": "@pipeline().RunId"
 										},
 										{
 											"name": "source_url",
-											"value": "$$PAYLOAD:item().source_path"
+											"value": "@item().source_path"
 										},
 										{
 											"name": "snapshot_date",
-											"value": "$$PAYLOAD:pipeline().parameters.snapshotDate"
+											"value": "@pipeline().parameters.snapshotDate"
 										}
 									]
 								},
