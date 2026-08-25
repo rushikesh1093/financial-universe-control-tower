@@ -49,13 +49,13 @@ resources:
       tasks:
         - task_key: setup
           notebook_task:
-            notebook_path: ../databricks/notebooks/00_setup.py
+            notebook_path: ../databricks/notebooks/00_setup.ipynb
             source: WORKSPACE
 
         - task_key: source_profiling
           depends_on: [{ task_key: setup }]
           notebook_task:
-            notebook_path: ../databricks/notebooks/01_source_profiling.py
+            notebook_path: ../databricks/notebooks/01_source_profiling.ipynb
             source: WORKSPACE
 
         - task_key: bronze_ingestion
@@ -67,43 +67,43 @@ resources:
           min_retry_interval_millis: 30000
           retry_on_timeout: true
           notebook_task:
-            notebook_path: ../databricks/notebooks/02_bronze_ingestion.py
+            notebook_path: ../databricks/notebooks/02_bronze_ingestion.ipynb
             source: WORKSPACE
 
         - task_key: schema_standardisation
           depends_on: [{ task_key: bronze_ingestion }]
           notebook_task:
-            notebook_path: ../databricks/notebooks/03_schema_standardization.py
+            notebook_path: ../databricks/notebooks/03_schema_standardization.ipynb
             source: WORKSPACE
 
         - task_key: master_data
           depends_on: [{ task_key: schema_standardisation }]
           notebook_task:
-            notebook_path: ../databricks/notebooks/04_master_data.py
+            notebook_path: ../databricks/notebooks/04_master_data.ipynb
             source: WORKSPACE
 
         - task_key: data_quality
           depends_on: [{ task_key: master_data }]
           notebook_task:
-            notebook_path: ../databricks/notebooks/05_data_quality.py
+            notebook_path: ../databricks/notebooks/05_data_quality.ipynb
             source: WORKSPACE
 
         - task_key: change_detection
           depends_on: [{ task_key: data_quality }]
           notebook_task:
-            notebook_path: ../databricks/notebooks/06_change_detection.py
+            notebook_path: ../databricks/notebooks/06_change_detection.ipynb
             source: WORKSPACE
 
         - task_key: gold_processing
           depends_on: [{ task_key: change_detection }]
           notebook_task:
-            notebook_path: ../databricks/notebooks/07_gold_processing.py
+            notebook_path: ../databricks/notebooks/07_gold_processing.ipynb
             source: WORKSPACE
 
         - task_key: sql_views
           depends_on: [{ task_key: gold_processing }]
           notebook_task:
-            notebook_path: ../databricks/notebooks/08_sql_views.py
+            notebook_path: ../databricks/notebooks/08_sql_views.ipynb
             source: WORKSPACE
 
       queue:
