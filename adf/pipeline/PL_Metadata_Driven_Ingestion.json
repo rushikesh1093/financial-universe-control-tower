@@ -71,7 +71,7 @@
 								},
 								{
 									"name": "Destination",
-									"value": "bronze/@{item().target_folder}/snapshot_date=@{pipeline().parameters.snapshotDate}/@{item().file_name}"
+									"value": "@concat('bronze/', item().target_folder, '/snapshot_date=', pipeline().parameters.snapshotDate, '/', item().file_name)"
 								}
 							],
 							"typeProperties": {
