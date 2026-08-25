@@ -23,3 +23,7 @@ Thumbs.db
 # Power BI large binaries
 *.pbix
 
+# Data Lake raw Landing
+bronze/
+
+
