@@ -24,7 +24,7 @@
 						}
 					},
 					"dataset": {
-						"referenceName": "DS_GitHub_HTTP_CSV",
+						"referenceName": "DS_GitHub_HTTP_JSON",
 						"type": "DatasetReference",
 						"parameters": {
 							"relativeUrl": "resources/dataset_metadata.json"

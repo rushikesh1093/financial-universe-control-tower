@@ -1,0 +1,25 @@
+{
+	"name": "DS_GitHub_HTTP_JSON",
+	"type": "Microsoft.DataFactory/factories/datasets",
+	"properties": {
+		"description": "Parameterized HTTP Json dataset for reading JSON metadata files from GitHub repository",
+		"linkedServiceName": {
+			"referenceName": "LS_GitHub_ControlTower",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"relativeUrl": {
+				"type": "string"
+			}
+		},
+		"annotations": ["GitHub", "JSON", "Metadata"],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "@dataset().relativeUrl"
+			}
+		},
+		"schema": {}
+	}
+}

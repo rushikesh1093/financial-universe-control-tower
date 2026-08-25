@@ -1,0 +1,14 @@
+{
+	"name": "LS_GitHub_ControlTower",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "HTTP Linked Service connecting to raw GitHub Control Tower repository metadata",
+		"annotations": ["ControlTower", "Metadata"],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://raw.githubusercontent.com/rushikesh1093/financial-universe-control-tower/main/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
