@@ -1,0 +1,29 @@
+{
+	"name": "DS_GitHub_HTTP_CSV",
+	"type": "Microsoft.DataFactory/factories/datasets",
+	"properties": {
+		"description": "Parameterized HTTP DelimitedText dataset for downloading FinanceDatabase source CSV files",
+		"linkedServiceName": {
+			"referenceName": "LS_GitHub_FinanceDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"relativeUrl": {
+				"type": "string"
+			}
+		},
+		"annotations": ["GitHub", "CSV", "Source"],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "@dataset().relativeUrl"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"name": "LS_AzureDatabricks",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Azure Databricks Linked Service using Managed Identity for notebook execution",
+		"annotations": ["Databricks", "Compute"],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-financial-universe.azuredatabricks.net",
+			"authentication": "MSI",
+			"workspaceResourceId": "/subscriptions/sub-id/resourceGroups/rg-financial-universe/providers/Microsoft.Databricks/workspaces/adb-financial-universe",
+			"existingClusterId": "0825-123456-cluster"
+		}
+	}
+}

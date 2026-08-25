@@ -1,0 +1,12 @@
+{
+	"name": "LS_AzureSQL",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Azure SQL Database Linked Service for serving layer dimensional model",
+		"annotations": ["Serving", "AzureSQL"],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;TrustServerCertificate=False;Data Source=sql-financial-universe.database.windows.net;Initial Catalog=sqldb-financial-master;User ID=sqladmin"
+		}
+	}
+}
