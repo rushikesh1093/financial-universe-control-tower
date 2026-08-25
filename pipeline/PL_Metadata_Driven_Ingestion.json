@@ -21,6 +21,9 @@
 						"storeSettings": {
 							"type": "HttpReadSettings",
 							"requestMethod": "GET"
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
 						}
 					},
 					"dataset": {
@@ -77,31 +80,43 @@
 							"typeProperties": {
 								"source": {
 									"type": "DelimitedTextSource",
+									"additionalColumns": [
+										{
+											"name": "ingestion_timestamp",
+											"value": {
+												"value": "@utcnow()",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "pipeline_run_id",
+											"value": {
+												"value": "@pipeline().RunId",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "source_url",
+											"value": {
+												"value": "@item().path",
+												"type": "Expression"
+											}
+										},
+										{
+											"name": "snapshot_date",
+											"value": {
+												"value": "@pipeline().parameters.snapshotDate",
+												"type": "Expression"
+											}
+										}
+									],
 									"storeSettings": {
 										"type": "HttpReadSettings",
 										"requestMethod": "GET"
 									},
 									"formatSettings": {
 										"type": "DelimitedTextReadSettings"
-									},
-									"additionalColumns": [
-										{
-											"name": "ingestion_timestamp",
-											"value": "@utcnow()"
-										},
-										{
-											"name": "pipeline_run_id",
-											"value": "@pipeline().RunId"
-										},
-										{
-											"name": "source_url",
-											"value": "@item().path"
-										},
-										{
-											"name": "snapshot_date",
-											"value": "@pipeline().parameters.snapshotDate"
-										}
-									]
+									}
 								},
 								"sink": {
 									"type": "DelimitedTextSink",
@@ -147,6 +162,10 @@
 				"defaultValue": "@formatDateTime(utcnow(), 'yyyy-MM-dd')"
 			}
 		},
-		"annotations": ["Ingestion", "Metadata-Driven", "Bronze"]
+		"annotations": [
+			"Ingestion",
+			"Metadata-Driven",
+			"Bronze"
+		]
 	}
 }
