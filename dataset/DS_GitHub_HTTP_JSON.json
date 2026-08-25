@@ -4,7 +4,7 @@
 	"properties": {
 		"description": "Parameterized HTTP Json dataset for reading JSON metadata files from GitHub repository",
 		"linkedServiceName": {
-			"referenceName": "LS_GitHub_ControlTower",
+			"referenceName": "LS_GitHub_API",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {

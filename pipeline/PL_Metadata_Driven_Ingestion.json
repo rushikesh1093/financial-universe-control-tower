@@ -27,7 +27,7 @@
 						"referenceName": "DS_GitHub_HTTP_JSON",
 						"type": "DatasetReference",
 						"parameters": {
-							"relativeUrl": "resources/dataset_metadata.json"
+							"relativeUrl": "repos/JerBouma/FinanceDatabase/contents/database/equities?ref=main"
 						}
 					},
 					"firstRowOnly": false
@@ -67,11 +67,11 @@
 							"userProperties": [
 								{
 									"name": "Source",
-									"value": "@item().source_path"
+									"value": "@item().path"
 								},
 								{
 									"name": "Destination",
-									"value": "@concat('bronze/', item().target_folder, '/snapshot_date=', pipeline().parameters.snapshotDate, '/', item().file_name)"
+									"value": "@concat('bronze/equities/snapshot_date=', pipeline().parameters.snapshotDate, '/', item().name)"
 								}
 							],
 							"typeProperties": {
@@ -95,7 +95,7 @@
 										},
 										{
 											"name": "source_url",
-											"value": "@item().source_path"
+											"value": "@item().path"
 										},
 										{
 											"name": "snapshot_date",
@@ -121,7 +121,7 @@
 									"referenceName": "DS_GitHub_HTTP_CSV",
 									"type": "DatasetReference",
 									"parameters": {
-										"relativeUrl": "@item().source_path"
+										"relativeUrl": "@concat('JerBouma/FinanceDatabase/main/', item().path)"
 									}
 								}
 							],
@@ -131,8 +131,8 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"container": "destination",
-										"folderPath": "@concat('bronze/', item().target_folder, '/snapshot_date=', pipeline().parameters.snapshotDate)",
-										"fileName": "@item().file_name"
+										"folderPath": "@concat('bronze/equities/snapshot_date=', pipeline().parameters.snapshotDate)",
+										"fileName": "@item().name"
 									}
 								}
 							]
