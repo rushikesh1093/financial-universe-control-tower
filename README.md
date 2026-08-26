@@ -12,8 +12,10 @@ It is:
 
 ---
 
-## 📸 Pipeline Architecture & Execution
-(architecture\architecture.png)
+## ## 🏛️ Architecture Diagram
+
+![Architecture Diagram](architecture/architecture.png)
+
 
 ### 1. Azure Data Factory Master Orchestration (`PL_Orchestrate_Control_Tower`)
 ![ADF Master Orchestration Pipeline](powerbi/screenshots/adf_orchestration_pipeline.png)
