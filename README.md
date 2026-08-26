@@ -12,22 +12,37 @@ It is:
 
 ---
 
-## ## 🏛️ Architecture Diagram
+## 🏛️ Architecture Diagram
 
 ![Architecture Diagram](architecture/architecture.png)
 
+---
 
-### 1. Azure Data Factory Master Orchestration (`PL_Orchestrate_Control_Tower`)
-![ADF Master Orchestration Pipeline](powerbi/screenshots/adf_orchestration_pipeline.png)
+## 📊 Power BI Control Tower Dashboard
 
-### 2. Azure Data Factory Metadata-Driven Ingestion (`PL_Metadata_Driven_Ingestion`)
-![ADF Metadata-Driven Ingestion Pipeline](powerbi/screenshots/adf_ingestion_pipeline.png)
+### 1. Universe Overview
+![Universe Overview](<powerbi/screenshots/1 — Universe Overview .png>)
 
-### 3. Databricks Multi-Task Workflow Job (`Financial Universe Control Tower`)
-![Databricks Multi-Task Workflow Job](powerbi/screenshots/databricks_workflow_job.png)
+### 2. Instrument Change Monitor
+![Instrument Change Monitor](<powerbi/screenshots/2 — Instrument Change Monitor.png>)
 
-### 4. Databricks Workspace Notebooks (`databricks/notebooks/`)
-![Databricks Workspace Notebooks](powerbi/screenshots/databricks_workspace_notebooks.png)
+### 3. Classification Intelligence
+![Classification Intelligence](<powerbi/screenshots/3 — Classification Intelligence.png>)
+
+### 4. Data Quality Control Tower
+![Data Quality Control Tower](<powerbi/screenshots/4 — Data Quality Control Tower.png>)
+
+### 5. Security Master Explorer
+![Security Master Explorer](<powerbi/screenshots/5 — Security Master Explorer.png>)
+
+---
+
+## ⚙️ Orchestration & Execution Pipelines
+
+- **1. Azure Data Factory Master Orchestration (`PL_Orchestrate_Control_Tower`)**
+- **2. Azure Data Factory Metadata-Driven Ingestion (`PL_Metadata_Driven_Ingestion`)**
+- **3. Databricks Multi-Task Workflow Job (`Financial Universe Control Tower`)**
+- **4. Databricks Workspace Notebooks (`databricks/notebooks/`)**
 
 ---
 
@@ -253,14 +268,14 @@ Detailed architectural and operational documentation is available in the `docs/`
 
 | Document | Description |
 |---|---|
-| [architecture.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/architecture.md) | System architecture, Medallion layer design, security model & guarantees |
-| [data_model.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/data_model.md) | Entity vs Instrument vs Listing, ERD, SHA-256 keys, Entity Resolution graph algorithm, SCD2 |
-| [data_dictionary.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/data_dictionary.md) | Complete column-level reference across bronze, silver, gold, quarantine, and audit schemas |
-| [pipeline_design.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/pipeline_design.md) | Ingestion framework, dynamic column-signature routing, lineage, and 8-stage notebook breakdown |
-| [data_quality.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/data_quality.md) | Rule taxonomy, asset-class weighted scoring profiles, quality bands, and quarantine engine |
-| [change_detection.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/change_detection.md) | Full outer join snapshot diffing algorithm, PySpark `stack()` unpivot, and change taxonomy |
-| [business_rules.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/business_rules.md) | Profiling anomalies, folder swap corrections, currency normalization, and graph safety guards |
-| [business_questions_answers.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/business_questions_answers.md) | ANSI SQL reference and answers for all 18 Advanced Business Questions |
-| [power_bi_control_tower.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/power_bi_control_tower.md) | Functional spec for 5-page Power BI dashboard (Overview, Change, Classification, Quality, Explorer) |
-| [SETUP.md](file:///c:/Users/rushi/OneDrive/Desktop/databrick/docs/SETUP.md) | Environment setup and pipeline runbook |
+| [architecture.md](docs/architecture.md) | System architecture, Medallion layer design, security model & guarantees |
+| [data_model.md](docs/data_model.md) | Entity vs Instrument vs Listing, ERD, SHA-256 keys, Entity Resolution graph algorithm, SCD2 |
+| [data_dictionary.md](docs/data_dictionary.md) | Complete column-level reference across bronze, silver, gold, quarantine, and audit schemas |
+| [pipeline_design.md](docs/pipeline_design.md) | Ingestion framework, dynamic column-signature routing, lineage, and 8-stage notebook breakdown |
+| [data_quality.md](docs/data_quality.md) | Rule taxonomy, asset-class weighted scoring profiles, quality bands, and quarantine engine |
+| [change_detection.md](docs/change_detection.md) | Full outer join snapshot diffing algorithm, PySpark `stack()` unpivot, and change taxonomy |
+| [business_rules.md](docs/business_rules.md) | Profiling anomalies, folder swap corrections, currency normalization, and graph safety guards |
+| [business_questions_answers.md](docs/business_questions_answers.md) | ANSI SQL reference and answers for all 18 Advanced Business Questions |
+| [power_bi_control_tower.md](docs/power_bi_control_tower.md) | Functional spec for 5-page Power BI dashboard (Overview, Change, Classification, Quality, Explorer) |
+| [SETUP.md](docs/SETUP.md) | Environment setup and pipeline runbook |
 
