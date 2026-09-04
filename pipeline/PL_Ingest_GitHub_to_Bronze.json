@@ -122,7 +122,6 @@
                                     },
                                     "formatSettings": {
                                         "type": "DelimitedTextWriteSettings",
-                                        "quoteAllText": false,
                                         "fileExtension": ".csv"
                                     }
                                 },
