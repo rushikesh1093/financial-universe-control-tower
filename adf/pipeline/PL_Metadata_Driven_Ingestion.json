@@ -1,0 +1,152 @@
+{
+	"name": "PL_Metadata_Driven_Ingestion",
+	"properties": {
+		"description": "Metadata-driven ingestion pipeline to dynamically process active financial datasets into ADLS Gen2 Bronze layer",
+		"activities": [
+			{
+				"name": "Lookup_Active_Datasets",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:10:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "HttpReadSettings",
+							"requestMethod": "GET"
+						}
+					},
+					"dataset": {
+						"referenceName": "DS_GitHub_HTTP_JSON",
+						"type": "DatasetReference",
+						"parameters": {
+							"relativeUrl": "repos/JerBouma/FinanceDatabase/contents/database/equities?ref=main"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach_Active_Dataset",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Lookup_Active_Datasets",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Lookup_Active_Datasets').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 5,
+					"activities": [
+						{
+							"name": "Copy_CSV_To_Bronze",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.01:00:00",
+								"retry": 3,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [
+								{
+									"name": "Source",
+									"value": "@item().path"
+								},
+								{
+									"name": "Destination",
+									"value": "@concat('bronze/equities/snapshot_date=', pipeline().parameters.snapshotDate, '/', item().name)"
+								}
+							],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									},
+									"additionalColumns": [
+										{
+											"name": "ingestion_timestamp",
+											"value": "@utcnow()"
+										},
+										{
+											"name": "pipeline_run_id",
+											"value": "@pipeline().RunId"
+										},
+										{
+											"name": "source_url",
+											"value": "@item().path"
+										},
+										{
+											"name": "snapshot_date",
+											"value": "@pipeline().parameters.snapshotDate"
+										}
+									]
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".csv"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_GitHub_HTTP_CSV",
+									"type": "DatasetReference",
+									"parameters": {
+										"relativeUrl": "@concat('JerBouma/FinanceDatabase/main/', item().path)"
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_ADLS_Bronze_CSV",
+									"type": "DatasetReference",
+									"parameters": {
+										"container": "destination",
+										"folderPath": "@concat('bronze/equities/snapshot_date=', pipeline().parameters.snapshotDate)",
+										"fileName": "@item().name"
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"snapshotDate": {
+				"type": "string",
+				"defaultValue": "@formatDateTime(utcnow(), 'yyyy-MM-dd')"
+			}
+		},
+		"annotations": ["Ingestion", "Metadata-Driven", "Bronze"]
+	}
+}

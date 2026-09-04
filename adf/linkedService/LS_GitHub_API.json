@@ -1,0 +1,14 @@
+{
+	"name": "LS_GitHub_API",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "HTTP Linked Service connecting to GitHub REST API (api.github.com) for directory discovery and metadata listing",
+		"annotations": ["GitHub", "API", "Metadata"],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://api.github.com/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}

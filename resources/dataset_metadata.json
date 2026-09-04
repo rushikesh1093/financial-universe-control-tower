@@ -1,0 +1,53 @@
+{
+  "value": [
+    {
+      "dataset_name": "Equities",
+      "source_path": "database/equities/BER.csv",
+      "target_folder": "equities",
+      "file_name": "BER.csv",
+      "active": true
+    },
+    {
+      "dataset_name": "ETFs",
+      "source_path": "database/etfs/BER.csv",
+      "target_folder": "etfs",
+      "file_name": "BER.csv",
+      "active": true
+    },
+    {
+      "dataset_name": "Funds",
+      "source_path": "database/funds/BER.csv",
+      "target_folder": "funds",
+      "file_name": "BER.csv",
+      "active": true
+    },
+    {
+      "dataset_name": "Indices",
+      "source_path": "database/indices.csv",
+      "target_folder": "indices",
+      "file_name": "indices.csv",
+      "active": true
+    },
+    {
+      "dataset_name": "Currencies",
+      "source_path": "database/currencies.csv",
+      "target_folder": "currencies",
+      "file_name": "currencies.csv",
+      "active": true
+    },
+    {
+      "dataset_name": "Cryptocurrencies",
+      "source_path": "database/cryptos.csv",
+      "target_folder": "cryptos",
+      "file_name": "cryptos.csv",
+      "active": true
+    },
+    {
+      "dataset_name": "MoneyMarkets",
+      "source_path": "database/moneymarkets.csv",
+      "target_folder": "moneymarkets",
+      "file_name": "moneymarkets.csv",
+      "active": true
+    }
+  ]
+}
