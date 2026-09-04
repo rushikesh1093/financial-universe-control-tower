@@ -20,7 +20,7 @@
             },
             "databricks_job_id": {
                 "type": "String",
-                "defaultValue": "<job-id>",
+                "defaultValue": "273466137289618",
                 "description": "Numeric ID of the 'Financial Universe Control Tower' workflow job in Databricks."
             },
             "databricks_pat": {
