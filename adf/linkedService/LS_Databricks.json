@@ -6,8 +6,7 @@
         "typeProperties": {
             "domain": "https://adb-7405610285210936.16.azuredatabricks.net",
             "authentication": "MSI",
-            "workspaceResourceId": "/subscriptions/955d59c8-0957-49fc-9224-775b236608f0/resourceGroups/dataengi/providers/Microsoft.Databricks/workspaces/financial-databricks",
-            "existingClusterId": ""
+            "workspaceResourceId": "/subscriptions/955d59c8-0957-49fc-9224-775b236608f0/resourceGroups/dataengi/providers/Microsoft.Databricks/workspaces/financial-databricks"
         },
         "annotations": [
             "compute:databricks",
