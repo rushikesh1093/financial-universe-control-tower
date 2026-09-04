@@ -1,15 +1,15 @@
 {
-	"name": "adf-financial-universe-control-tower",
+	"name": "learnazure1093",
 	"properties": {
 		"trustModeClaimForMi": {
 			"value": "Disabled",
 			"editable": true
 		}
 	},
-	"location": "eastus",
+	"location": "centralindia",
 	"identity": {
 		"type": "SystemAssigned",
-		"principalId": "00000000-0000-0000-0000-000000000000",
-		"tenantId": "00000000-0000-0000-0000-000000000000"
+		"principalId": "f1d1e508-a65a-4284-89a7-c82cf7547fe9",
+		"tenantId": "c6232859-dc6a-42ce-bad9-bc95a998b76c"
 	}
 }
