@@ -1,0 +1,55 @@
+{
+    "name": "FinancialUniverseControlTower",
+    "properties": {
+        "description": "Azure Data Factory for the Financial Universe Control Tower project. Ingests FinanceDatabase CSVs from GitHub into ADLS Gen2 bronze layer then triggers the Databricks medallion pipeline.",
+        "globalParameters": {
+            "gp_storage_account": {
+                "type": "string",
+                "value": "learnazure11"
+            },
+            "gp_destination_container": {
+                "type": "string",
+                "value": "destination"
+            },
+            "gp_github_base_url": {
+                "type": "string",
+                "value": "https://raw.githubusercontent.com/JerBouma/FinanceDatabase/main/database"
+            },
+            "gp_bronze_root": {
+                "type": "string",
+                "value": "abfss://destination@learnazure11.dfs.core.windows.net/bronze"
+            },
+            "gp_silver_root": {
+                "type": "string",
+                "value": "abfss://destination@learnazure11.dfs.core.windows.net/silver"
+            },
+            "gp_gold_root": {
+                "type": "string",
+                "value": "abfss://destination@learnazure11.dfs.core.windows.net/gold"
+            },
+            "gp_quarantine_root": {
+                "type": "string",
+                "value": "abfss://destination@learnazure11.dfs.core.windows.net/quarantine"
+            },
+            "gp_catalog": {
+                "type": "string",
+                "value": "azurelearn"
+            },
+            "gp_environment": {
+                "type": "string",
+                "value": "dev"
+            }
+        },
+        "repoConfiguration": {
+            "type": "FactoryGitHubConfiguration",
+            "hostName": "",
+            "accountName": "rushikesh1093",
+            "repositoryName": "financial-universe-control-tower",
+            "collaborationBranch": "main",
+            "publishBranch": "adf_publish",
+            "rootFolder": "/",
+            "lastCommitId": "",
+            "disablePublish": false
+        }
+    }
+}

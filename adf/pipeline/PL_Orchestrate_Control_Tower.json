@@ -1,0 +1,293 @@
+{
+    "name": "PL_Orchestrate_Control_Tower",
+    "properties": {
+        "description": "Master orchestration pipeline for the Financial Universe Control Tower.\n\nStep 1 — PL_Ingest_GitHub_to_Bronze: copies all ETF, equity and fund CSVs from the FinanceDatabase GitHub repo (raw.githubusercontent.com) into the existing ADLS Gen2 bronze folders inside the 'destination' container.\n\nStep 2 — Databricks Jobs API (Web activity): triggers the pre-deployed '[dev] Financial Universe Control Tower' multi-task workflow job using the Databricks REST API. Passes snapshot_date, source_root, silver_root, gold_root, quarantine_root and reprocess as job parameters.\n\nStep 3 — Poll job status (Until loop + Web activity): polls the run until it reaches a terminal state and fails the ADF pipeline if Databricks reports FAILED or CANCELED.\n\nThe snapshot_date is resolved once and propagated consistently so the entire run is end-to-end traceable.",
+        "parameters": {
+            "snapshot_date": {
+                "type": "String",
+                "defaultValue": "",
+                "description": "Override to reprocess a specific date (yyyy-MM-dd). Leave blank to use today UTC."
+            },
+            "reprocess": {
+                "type": "String",
+                "defaultValue": "false",
+                "description": "Pass true to force Databricks to rewrite an existing snapshot partition."
+            },
+            "databricks_workspace_url": {
+                "type": "String",
+                "defaultValue": "https://adb-7405610285210936.16.azuredatabricks.net",
+                "description": "Base URL of the Databricks workspace."
+            },
+            "databricks_job_id": {
+                "type": "String",
+                "defaultValue": "<job-id>",
+                "description": "Numeric ID of the 'Financial Universe Control Tower' workflow job in Databricks."
+            },
+            "databricks_pat": {
+                "type": "String",
+                "defaultValue": "",
+                "description": "Databricks Personal Access Token. Store this in Azure Key Vault and reference via AKV linked service — do NOT hardcode."
+            },
+            "source_root": {
+                "type": "String",
+                "defaultValue": "abfss://destination@learnazure11.dfs.core.windows.net/bronze",
+                "description": "Landing area scanned by Databricks for CSVs."
+            },
+            "silver_root": {
+                "type": "String",
+                "defaultValue": "abfss://destination@learnazure11.dfs.core.windows.net/silver",
+                "description": "External location for silver Delta tables."
+            },
+            "gold_root": {
+                "type": "String",
+                "defaultValue": "abfss://destination@learnazure11.dfs.core.windows.net/gold",
+                "description": "External location for gold Delta tables."
+            },
+            "quarantine_root": {
+                "type": "String",
+                "defaultValue": "abfss://destination@learnazure11.dfs.core.windows.net/quarantine",
+                "description": "External location for quarantine Delta tables."
+            }
+        },
+        "variables": {
+            "effective_snapshot_date": {
+                "type": "String"
+            },
+            "databricks_run_id": {
+                "type": "String"
+            },
+            "databricks_run_state": {
+                "type": "String"
+            },
+            "databricks_run_terminal": {
+                "type": "Boolean",
+                "defaultValue": false
+            }
+        },
+        "activities": [
+            {
+                "name": "Resolve_Snapshot_Date",
+                "description": "If snapshot_date parameter is empty, default to today in UTC (yyyy-MM-dd).",
+                "type": "SetVariable",
+                "typeProperties": {
+                    "variableName": "effective_snapshot_date",
+                    "value": {
+                        "value": "@if(empty(pipeline().parameters.snapshot_date), formatDateTime(utcNow(), 'yyyy-MM-dd'), pipeline().parameters.snapshot_date)",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "Stage1_Ingest_GitHub_to_Bronze",
+                "description": "Invoke the ingestion pipeline which downloads all ETF/equity/fund CSVs from GitHub into the existing bronze folders in ADLS Gen2.",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "Resolve_Snapshot_Date",
+                        "dependencyConditions": ["Succeeded"]
+                    }
+                ],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "PL_Ingest_GitHub_to_Bronze",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "snapshot_date": {
+                            "value": "@variables('effective_snapshot_date')",
+                            "type": "Expression"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "Stage2_Trigger_Databricks_Job",
+                "description": "Call the Databricks Jobs 2.1 Run Now API to start the pre-deployed workflow job. Captures the run_id from the response for status polling.",
+                "type": "WebActivity",
+                "dependsOn": [
+                    {
+                        "activity": "Stage1_Ingest_GitHub_to_Bronze",
+                        "dependencyConditions": ["Succeeded"]
+                    }
+                ],
+                "typeProperties": {
+                    "url": {
+                        "value": "@concat(pipeline().parameters.databricks_workspace_url, '/api/2.1/jobs/run-now')",
+                        "type": "Expression"
+                    },
+                    "method": "POST",
+                    "headers": {
+                        "Authorization": {
+                            "value": "@concat('Bearer ', pipeline().parameters.databricks_pat)",
+                            "type": "Expression"
+                        },
+                        "Content-Type": "application/json"
+                    },
+                    "body": {
+                        "value": "@json(concat('{\"job_id\":', pipeline().parameters.databricks_job_id, ',\"notebook_params\":{\"snapshot_date\":\"', variables('effective_snapshot_date'), '\",\"source_root\":\"', pipeline().parameters.source_root, '\",\"silver_root\":\"', pipeline().parameters.silver_root, '\",\"gold_root\":\"', pipeline().parameters.gold_root, '\",\"quarantine_root\":\"', pipeline().parameters.quarantine_root, '\",\"reprocess\":\"', pipeline().parameters.reprocess, '\",\"catalog\":\"azurelearn\"}}'))",
+                        "type": "Expression"
+                    }
+                },
+                "policy": {
+                    "timeout": "0.00:02:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 10,
+                    "secureInput": true,
+                    "secureOutput": false
+                }
+            },
+            {
+                "name": "Capture_Databricks_Run_Id",
+                "description": "Store the run_id returned by the Databricks Run Now API so we can poll it.",
+                "type": "SetVariable",
+                "dependsOn": [
+                    {
+                        "activity": "Stage2_Trigger_Databricks_Job",
+                        "dependencyConditions": ["Succeeded"]
+                    }
+                ],
+                "typeProperties": {
+                    "variableName": "databricks_run_id",
+                    "value": {
+                        "value": "@string(activity('Stage2_Trigger_Databricks_Job').output.run_id)",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "Stage3_Poll_Until_Terminal",
+                "description": "Poll the Databricks run every 60 seconds until it reaches a terminal state (SUCCESS, FAILED, CANCELED, TIMEDOUT, SKIPPED). ADF pipeline fails if Databricks reports anything other than SUCCESS.",
+                "type": "Until",
+                "dependsOn": [
+                    {
+                        "activity": "Capture_Databricks_Run_Id",
+                        "dependencyConditions": ["Succeeded"]
+                    }
+                ],
+                "typeProperties": {
+                    "expression": {
+                        "value": "@variables('databricks_run_terminal')",
+                        "type": "Expression"
+                    },
+                    "timeout": "0.07:00:00",
+                    "activities": [
+                        {
+                            "name": "Wait_60s",
+                            "description": "Back off 60 seconds before each status check to avoid hammering the API.",
+                            "type": "Wait",
+                            "typeProperties": {
+                                "waitTimeInSeconds": 60
+                            }
+                        },
+                        {
+                            "name": "Get_Run_Status",
+                            "description": "Call Databricks Jobs Get Run API to retrieve life_cycle_state and result_state.",
+                            "type": "WebActivity",
+                            "dependsOn": [
+                                {
+                                    "activity": "Wait_60s",
+                                    "dependencyConditions": ["Succeeded"]
+                                }
+                            ],
+                            "typeProperties": {
+                                "url": {
+                                    "value": "@concat(pipeline().parameters.databricks_workspace_url, '/api/2.1/jobs/runs/get?run_id=', variables('databricks_run_id'))",
+                                    "type": "Expression"
+                                },
+                                "method": "GET",
+                                "headers": {
+                                    "Authorization": {
+                                        "value": "@concat('Bearer ', pipeline().parameters.databricks_pat)",
+                                        "type": "Expression"
+                                    }
+                                }
+                            },
+                            "policy": {
+                                "timeout": "0.00:01:00",
+                                "retry": 3,
+                                "retryIntervalInSeconds": 10,
+                                "secureInput": true,
+                                "secureOutput": false
+                            }
+                        },
+                        {
+                            "name": "Set_Run_State",
+                            "description": "Capture the life_cycle_state from the API response.",
+                            "type": "SetVariable",
+                            "dependsOn": [
+                                {
+                                    "activity": "Get_Run_Status",
+                                    "dependencyConditions": ["Succeeded"]
+                                }
+                            ],
+                            "typeProperties": {
+                                "variableName": "databricks_run_state",
+                                "value": {
+                                    "value": "@activity('Get_Run_Status').output.state.life_cycle_state",
+                                    "type": "Expression"
+                                }
+                            }
+                        },
+                        {
+                            "name": "Check_Terminal_State",
+                            "description": "Mark terminal=true when the run leaves PENDING/RUNNING. TERMINATED means SUCCESS or FAILED — evaluated after the loop exits.",
+                            "type": "SetVariable",
+                            "dependsOn": [
+                                {
+                                    "activity": "Set_Run_State",
+                                    "dependencyConditions": ["Succeeded"]
+                                }
+                            ],
+                            "typeProperties": {
+                                "variableName": "databricks_run_terminal",
+                                "value": {
+                                    "value": "@or(equals(variables('databricks_run_state'), 'TERMINATED'), or(equals(variables('databricks_run_state'), 'SKIPPED'), or(equals(variables('databricks_run_state'), 'INTERNAL_ERROR'), equals(variables('databricks_run_state'), 'BLOCKED'))))",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Assert_Databricks_Success",
+                "description": "Fail the ADF pipeline explicitly if the Databricks run did not end with result_state SUCCESS. This surfaces the failure in ADF monitoring instead of silently succeeding.",
+                "type": "IfCondition",
+                "dependsOn": [
+                    {
+                        "activity": "Stage3_Poll_Until_Terminal",
+                        "dependencyConditions": ["Succeeded"]
+                    }
+                ],
+                "typeProperties": {
+                    "expression": {
+                        "value": "@not(equals(activity('Get_Run_Status').output.state.result_state, 'SUCCESS'))",
+                        "type": "Expression"
+                    },
+                    "ifTrueActivities": [
+                        {
+                            "name": "Fail_Pipeline",
+                            "description": "Surface the Databricks failure as an ADF pipeline error so alerts and retry rules fire correctly.",
+                            "type": "Fail",
+                            "typeProperties": {
+                                "message": {
+                                    "value": "@concat('Databricks job run ', variables('databricks_run_id'), ' ended with result_state: ', activity('Get_Run_Status').output.state.result_state, '. Check the Databricks run URL: ', pipeline().parameters.databricks_workspace_url, '/#job/', pipeline().parameters.databricks_job_id, '/run/', variables('databricks_run_id'))",
+                                    "type": "Expression"
+                                },
+                                "errorCode": "DATABRICKS_JOB_FAILED"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "annotations": [
+            "orchestration:master",
+            "project:financial-universe-control-tower"
+        ],
+        "folder": {
+            "name": "FinancialUniverse"
+        }
+    }
+}
