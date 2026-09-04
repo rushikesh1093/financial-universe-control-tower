@@ -17,9 +17,14 @@ venv/
 .databricks/
 scratch/
 
-# Ignore JSON files everywhere except ADF artifact folders
+# Ignore JSON files everywhere except ADF artifact folders (both adf/ subfolder and root-level for ADF Studio)
 *.json
 !adf/**/*.json
+!pipeline/*.json
+!dataset/*.json
+!linkedService/*.json
+!trigger/*.json
+!factory/*.json
 
 # OS generated files
 .DS_Store
