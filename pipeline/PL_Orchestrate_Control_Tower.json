@@ -1,10 +1,11 @@
 {
 	"name": "PL_Orchestrate_Control_Tower",
 	"properties": {
-		"description": "Master pipeline — Step 1: copy CSVs from GitHub to bronze (ADLS). Step 2: trigger Databricks workflow job via REST API.",
+		"description": "Master pipeline — Step 1: copy CSVs from GitHub to bronze (ADLS). Step 2: trigger Databricks workflow job.",
 		"activities": [
 			{
 				"name": "Step1_Ingest_GitHub_to_Bronze",
+				"description": "Download all ETF, equity and fund CSVs from GitHub into ADLS bronze folders.",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"policy": {
@@ -26,8 +27,9 @@
 				}
 			},
 			{
-				"name": "Step2_Trigger_Databricks_Job",
-				"type": "WebActivity",
+				"name": "Step2_Run_Databricks_Job",
+				"description": "Trigger the Financial Universe Control Tower Databricks workflow job.",
+				"type": "DatabricksJob",
 				"dependsOn": [
 					{
 						"activity": "Step1_Ingest_GitHub_to_Bronze",
@@ -37,26 +39,28 @@
 					}
 				],
 				"policy": {
-					"timeout": "0.00:05:00",
+					"timeout": "0.08:00:00",
 					"retry": 1,
-					"retryIntervalInSeconds": 30,
-					"secureInput": true
+					"retryIntervalInSeconds": 60
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"method": "POST",
-					"headers": {
-						"Authorization": {
-							"value": "@concat('Bearer ', pipeline().parameters.databricks_pat)",
+					"jobParameters": {
+						"snapshot_date": {
+							"value": "@pipeline().parameters.snapshot_date",
 							"type": "Expression"
 						},
-						"Content-Type": "application/json"
-					},
-					"url": "https://adb-7405610285210936.16.azuredatabricks.net/api/2.1/jobs/run-now",
-					"body": {
-						"value": "@concat('{\"job_id\":273466137289618,\"notebook_params\":{\"snapshot_date\":\"', pipeline().parameters.snapshot_date, '\",\"catalog\":\"azurelearn\",\"source_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/bronze\",\"silver_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/silver\",\"gold_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/gold\",\"quarantine_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/quarantine\",\"reprocess\":\"false\"}}')",
-						"type": "Expression"
+						"catalog": "azurelearn",
+						"source_root": "abfss://destination@learnazure11.dfs.core.windows.net/bronze",
+						"silver_root": "abfss://destination@learnazure11.dfs.core.windows.net/silver",
+						"gold_root": "abfss://destination@learnazure11.dfs.core.windows.net/gold",
+						"quarantine_root": "abfss://destination@learnazure11.dfs.core.windows.net/quarantine",
+						"reprocess": "false"
 					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_Databricks",
+					"type": "LinkedServiceReference"
 				}
 			}
 		],
@@ -64,9 +68,6 @@
 			"snapshot_date": {
 				"type": "String",
 				"defaultValue": "@formatDateTime(utcNow(), 'yyyy-MM-dd')"
-			},
-			"databricks_pat": {
-				"type": "String"
 			}
 		},
 		"folder": {
