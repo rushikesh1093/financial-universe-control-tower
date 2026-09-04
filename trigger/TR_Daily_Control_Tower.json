@@ -1,40 +1,36 @@
 {
-    "name": "TR_Daily_Control_Tower",
-    "properties": {
-        "description": "Daily schedule trigger — fires at 06:00 UTC every day and runs PL_Orchestrate_Control_Tower. Paused by default in dev; enable it manually or via CI/CD for prod. The snapshot_date is left blank so the pipeline resolves it to today UTC at runtime.",
-        "type": "ScheduleTrigger",
-        "typeProperties": {
-            "recurrence": {
-                "frequency": "Day",
-                "interval": 1,
-                "startTime": "2026-01-01T06:00:00Z",
-                "timeZone": "UTC",
-                "schedule": {
-                    "hours": [6],
-                    "minutes": [0]
-                }
-            }
-        },
-        "pipelines": [
-            {
-                "pipelineReference": {
-                    "referenceName": "PL_Orchestrate_Control_Tower",
-                    "type": "PipelineReference"
-                },
-                "parameters": {
-                    "snapshot_date": "",
-                    "reprocess": "false",
-                    "source_root": "abfss://destination@learnazure11.dfs.core.windows.net/bronze",
-                    "silver_root": "abfss://destination@learnazure11.dfs.core.windows.net/silver",
-                    "gold_root": "abfss://destination@learnazure11.dfs.core.windows.net/gold",
-                    "quarantine_root": "abfss://destination@learnazure11.dfs.core.windows.net/quarantine"
-                }
-            }
-        ],
-        "runtimeState": "Stopped",
-        "annotations": [
-            "schedule:daily",
-            "project:financial-universe-control-tower"
-        ]
-    }
+	"name": "TR_Daily_Control_Tower",
+	"properties": {
+		"description": "Daily schedule trigger — fires at 06:00 UTC every day and runs PL_Orchestrate_Control_Tower. Paused by default in dev; enable it manually or via CI/CD for prod. The snapshot_date is left blank so the pipeline resolves it to today UTC at runtime.",
+		"annotations": [
+			"schedule:daily",
+			"project:financial-universe-control-tower"
+		],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "PL_Orchestrate_Control_Tower",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2026-01-01T06:00:00Z",
+				"timeZone": "UTC",
+				"schedule": {
+					"minutes": [
+						0
+					],
+					"hours": [
+						6
+					]
+				}
+			}
+		}
+	}
 }
