@@ -1,0 +1,105 @@
+{
+    "name": "PL_Ingest_GitHub_to_Bronze",
+    "properties": {
+        "description": "Copies ETF, equity and fund CSVs from FinanceDatabase GitHub into ADLS Gen2 bronze folders.",
+        "parameters": {
+            "snapshot_date": {
+                "type": "String",
+                "defaultValue": ""
+            }
+        },
+        "activities": [
+            {
+                "name": "ForEach_Asset_File",
+                "type": "ForEach",
+                "dependsOn": [],
+                "userProperties": [],
+                "typeProperties": {
+                    "isSequential": false,
+                    "batchCount": 10,
+                    "items": {
+                        "value": "@json('[{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"BER\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"FRA\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"GER\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"JPX\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"LSE\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"NYQ\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"VIE\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"PCX\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"NMS\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"TOR\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"MUN\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"EBS\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"MIL\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"PAR\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"HAM\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"BER\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"BSE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"FRA\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"GER\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"JPX\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"LSE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"NSE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"NYQ\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"SHZ\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"NMS\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"TOR\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"ASX\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"HKG\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"KOE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"MCE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"MUN\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"PAR\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"STO\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"VIE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"BER\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"BSE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"FRA\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"JPX\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"LSE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"SHZ\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"VIE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"MCE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"NAS\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"TOR\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"MEX\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"STU\"}]')",
+                        "type": "Expression"
+                    },
+                    "activities": [
+                        {
+                            "name": "Copy_CSV_GitHub_to_Bronze",
+                            "type": "Copy",
+                            "dependsOn": [],
+                            "userProperties": [],
+                            "typeProperties": {
+                                "source": {
+                                    "type": "DelimitedTextSource",
+                                    "storeSettings": {
+                                        "type": "HttpReadSettings",
+                                        "requestMethod": "GET",
+                                        "requestTimeout": "00:10:00"
+                                    },
+                                    "formatSettings": {
+                                        "type": "DelimitedTextReadSettings",
+                                        "skipLineCount": 0
+                                    }
+                                },
+                                "sink": {
+                                    "type": "DelimitedTextSink",
+                                    "storeSettings": {
+                                        "type": "AzureBlobFSWriteSettings",
+                                        "copyBehavior": "PreserveHierarchy"
+                                    },
+                                    "formatSettings": {
+                                        "type": "DelimitedTextWriteSettings",
+                                        "fileExtension": ".csv"
+                                    }
+                                },
+                                "enableStaging": false
+                            },
+                            "inputs": [
+                                {
+                                    "referenceName": "DS_HTTP_GitHub_CSV",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "asset_folder": {
+                                            "value": "@item().asset_folder",
+                                            "type": "Expression"
+                                        },
+                                        "exchange_code": {
+                                            "value": "@item().exchange_code",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "referenceName": "DS_ADLS_Bronze_CSV",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "bronze_folder": {
+                                            "value": "@item().bronze_folder",
+                                            "type": "Expression"
+                                        },
+                                        "exchange_code": {
+                                            "value": "@item().exchange_code",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ],
+                            "policy": {
+                                "timeout": "0.01:00:00",
+                                "retry": 2,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "folder": {
+            "name": "FinancialUniverse"
+        },
+        "annotations": []
+    }
+}

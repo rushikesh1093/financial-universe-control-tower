@@ -1,0 +1,47 @@
+{
+    "name": "DS_ADLS_Bronze_CSV",
+    "properties": {
+        "description": "Parameterized ADLS Gen2 sink dataset. Writes CSV files into the bronze layer under destination/{bronze_folder}/{exchange_code}.csv",
+        "linkedServiceName": {
+            "referenceName": "LS_ADLS_Destination",
+            "type": "LinkedServiceReference"
+        },
+        "parameters": {
+            "bronze_folder": {
+                "type": "String",
+                "description": "Target bronze subfolder — one of: bronze/etfs, bronze/equities_data, bronze/funds_data"
+            },
+            "exchange_code": {
+                "type": "String",
+                "description": "Exchange code without extension, e.g. BER, LSE, NYQ"
+            }
+        },
+        "type": "DelimitedText",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileSystem": "destination",
+                "folderPath": {
+                    "value": "@dataset().bronze_folder",
+                    "type": "Expression"
+                },
+                "fileName": {
+                    "value": "@concat(dataset().exchange_code, '.csv')",
+                    "type": "Expression"
+                }
+            },
+            "columnDelimiter": ",",
+            "rowDelimiter": "\n",
+            "encodingName": "UTF-8",
+            "escapeChar": "\\",
+            "quoteChar": "\"",
+            "firstRowAsHeader": true
+        },
+        "schema": [],
+        "annotations": [
+            "destination:adls-gen2",
+            "layer:bronze",
+            "project:financial-universe-control-tower"
+        ]
+    }
+}

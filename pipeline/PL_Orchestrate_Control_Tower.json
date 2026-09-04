@@ -1,0 +1,77 @@
+{
+	"name": "PL_Orchestrate_Control_Tower",
+	"properties": {
+		"description": "Master pipeline — Step 1: copy CSVs from GitHub to bronze (ADLS). Step 2: trigger Databricks workflow job via REST API.",
+		"activities": [
+			{
+				"name": "Step1_Ingest_GitHub_to_Bronze",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Ingest_GitHub_to_Bronze",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"snapshot_date": {
+							"value": "@pipeline().parameters.snapshot_date",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "Step2_Trigger_Databricks_Job",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Step1_Ingest_GitHub_to_Bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.00:05:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureInput": true
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Authorization": {
+							"value": "@concat('Bearer ', pipeline().parameters.databricks_pat)",
+							"type": "Expression"
+						},
+						"Content-Type": "application/json"
+					},
+					"url": "https://adb-7405610285210936.16.azuredatabricks.net/api/2.1/jobs/run-now",
+					"body": {
+						"value": "@concat('{\"job_id\":273466137289618,\"notebook_params\":{\"snapshot_date\":\"', pipeline().parameters.snapshot_date, '\",\"catalog\":\"azurelearn\",\"source_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/bronze\",\"silver_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/silver\",\"gold_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/gold\",\"quarantine_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/quarantine\",\"reprocess\":\"false\"}}')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"snapshot_date": {
+				"type": "String",
+				"defaultValue": "@formatDateTime(utcNow(), 'yyyy-MM-dd')"
+			},
+			"databricks_pat": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "FinancialUniverse"
+		},
+		"annotations": []
+	}
+}
