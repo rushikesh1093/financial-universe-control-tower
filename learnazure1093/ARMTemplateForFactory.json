@@ -1,0 +1,412 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "learnazure1093"
+		},
+		"LS_ADLS_Destination_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://learnazure11.dfs.core.windows.net"
+		},
+		"LS_HTTP_GitHub_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://raw.githubusercontent.com"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_Ingest_GitHub_to_Bronze')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Copies ETF, equity and fund CSVs from FinanceDatabase GitHub into ADLS Gen2 bronze folders.",
+				"activities": [
+					{
+						"name": "ForEach_Asset_File",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@json('[{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"BER\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"FRA\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"GER\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"JPX\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"LSE\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"NYQ\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"VIE\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"PCX\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"NMS\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"TOR\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"MUN\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"EBS\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"MIL\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"PAR\"},{\"asset_folder\":\"etfs\",\"bronze_folder\":\"bronze/etfs\",\"exchange_code\":\"HAM\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"BER\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"BSE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"FRA\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"GER\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"JPX\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"LSE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"NSE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"NYQ\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"SHZ\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"NMS\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"TOR\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"ASX\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"HKG\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"KOE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"MCE\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"MUN\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"PAR\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"STO\"},{\"asset_folder\":\"equities\",\"bronze_folder\":\"bronze/equities_data\",\"exchange_code\":\"VIE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"BER\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"BSE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"FRA\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"JPX\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"LSE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"SHZ\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"VIE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"MCE\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"NAS\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"TOR\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"MEX\"},{\"asset_folder\":\"funds\",\"bronze_folder\":\"bronze/funds_data\",\"exchange_code\":\"STU\"}]')",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "Copy_CSV_GitHub_to_Bronze",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.01:00:00",
+										"retry": 2,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "HttpReadSettings",
+												"requestMethod": "GET",
+												"requestTimeout": "00:10:00"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings",
+												"skipLineCount": 0
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings",
+												"copyBehavior": "PreserveHierarchy"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".csv"
+											}
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "DS_HTTP_GitHub_CSV",
+											"type": "DatasetReference",
+											"parameters": {
+												"asset_folder": {
+													"value": "@item().asset_folder",
+													"type": "Expression"
+												},
+												"exchange_code": {
+													"value": "@item().exchange_code",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "DS_ADLS_Bronze_CSV",
+											"type": "DatasetReference",
+											"parameters": {
+												"bronze_folder": {
+													"value": "@item().bronze_folder",
+													"type": "Expression"
+												},
+												"exchange_code": {
+													"value": "@item().exchange_code",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"snapshot_date": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "FinancialUniverse"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_HTTP_GitHub_CSV')]",
+				"[concat(variables('factoryId'), '/datasets/DS_ADLS_Bronze_CSV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PL_Orchestrate_Control_Tower')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Master pipeline — Step 1: copy CSVs from GitHub to bronze (ADLS). Step 2: trigger Databricks workflow job via REST API.",
+				"activities": [
+					{
+						"name": "Step1_Ingest_GitHub_to_Bronze",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PL_Ingest_GitHub_to_Bronze",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"snapshot_date": {
+									"value": "@pipeline().parameters.snapshot_date",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					{
+						"name": "Step2_Trigger_Databricks_Job",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Step1_Ingest_GitHub_to_Bronze",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.00:05:00",
+							"retry": 1,
+							"retryIntervalInSeconds": 30,
+							"secureInput": true
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {
+								"Authorization": {
+									"value": "@concat('Bearer ', pipeline().parameters.databricks_pat)",
+									"type": "Expression"
+								},
+								"Content-Type": "application/json"
+							},
+							"url": "https://adb-7405610285210936.16.azuredatabricks.net/api/2.1/jobs/run-now",
+							"body": {
+								"value": "@concat('{\"job_id\":273466137289618,\"notebook_params\":{\"snapshot_date\":\"', pipeline().parameters.snapshot_date, '\",\"catalog\":\"azurelearn\",\"source_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/bronze\",\"silver_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/silver\",\"gold_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/gold\",\"quarantine_root\":\"abfss://destination@learnazure11.dfs.core.windows.net/quarantine\",\"reprocess\":\"false\"}}')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"snapshot_date": {
+						"type": "String",
+						"defaultValue": "@formatDateTime(utcNow(), 'yyyy-MM-dd')"
+					},
+					"databricks_pat": {
+						"type": "String"
+					}
+				},
+				"folder": {
+					"name": "FinancialUniverse"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/PL_Ingest_GitHub_to_Bronze')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_ADLS_Bronze_CSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Parameterized ADLS Gen2 sink dataset. Writes CSV files into the bronze layer under destination/{bronze_folder}/{exchange_code}.csv",
+				"linkedServiceName": {
+					"referenceName": "LS_ADLS_Destination",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"bronze_folder": {
+						"type": "String"
+					},
+					"exchange_code": {
+						"type": "String"
+					}
+				},
+				"annotations": [
+					"destination:adls-gen2",
+					"layer:bronze",
+					"project:financial-universe-control-tower"
+				],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat(dataset().exchange_code, '.csv')",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().bronze_folder",
+							"type": "Expression"
+						},
+						"fileSystem": "destination"
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"encodingName": "UTF-8",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_Destination')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_HTTP_GitHub_CSV')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Parameterized HTTP dataset. Resolves to https://raw.githubusercontent.com/JerBouma/FinanceDatabase/main/database/{asset_folder}/{exchange_code}.csv",
+				"linkedServiceName": {
+					"referenceName": "LS_HTTP_GitHub",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"asset_folder": {
+						"type": "String"
+					},
+					"exchange_code": {
+						"type": "String"
+					}
+				},
+				"annotations": [
+					"source:github",
+					"project:financial-universe-control-tower"
+				],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation",
+						"relativeUrl": {
+							"value": "@concat('/JerBouma/FinanceDatabase/main/database/', dataset().asset_folder, '/', dataset().exchange_code, '.csv')",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"encodingName": "UTF-8",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_HTTP_GitHub')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_ADLS_Destination')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Azure Data Lake Storage Gen2 linked service — destination container on learnazure11. Uses Managed Identity so no keys or SAS tokens are stored here.",
+				"annotations": [
+					"destination:adls-gen2",
+					"project:financial-universe-control-tower"
+				],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('LS_ADLS_Destination_properties_typeProperties_url')]",
+					"accountKind": "StorageV2"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_Databricks')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Azure Databricks linked service using Access Token authentication.",
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7405610285210936.16.azuredatabricks.net",
+					"authentication": "MSI",
+					"workspaceResourceId": "/subscriptions/955d59c8-0957-49fc-9224-775b236608f0/resourceGroups/dataengi/providers/Microsoft.Databricks/workspaces/financial-databricks"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_HTTP_GitHub')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "HTTP Linked Service pointing to raw.githubusercontent.com for FinanceDatabase CSV downloads",
+				"annotations": [
+					"source:github",
+					"project:financial-universe-control-tower"
+				],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('LS_HTTP_GitHub_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TR_Daily_Control_Tower')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Daily schedule trigger — fires at 06:00 UTC every day and runs PL_Orchestrate_Control_Tower. Paused by default in dev; enable it manually or via CI/CD for prod. The snapshot_date is left blank so the pipeline resolves it to today UTC at runtime.",
+				"annotations": [
+					"schedule:daily",
+					"project:financial-universe-control-tower"
+				],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "PL_Orchestrate_Control_Tower",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2026-01-01T06:00:00Z",
+						"timeZone": "UTC",
+						"schedule": {
+							"minutes": [
+								0
+							],
+							"hours": [
+								6
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/PL_Orchestrate_Control_Tower')]"
+			]
+		}
+	]
+}
