@@ -161,19 +161,58 @@ def write_quarantine(
     table = settings.quarantine("rejected_records").replace("`", "")
     count = df.count()
     if not count:
+        # No quarantine records for this snapshot. Still ensure the table exists
+        # so downstream queries (e.g. Power BI, audit joins) never hit
+        # AnalysisException on an empty first run. Create a zero-row shell table.
+        if not spark.catalog.tableExists(table):
+            from pyspark.sql.types import (
+                DoubleType, StringType, StructField, StructType, TimestampType,
+            )
+            empty_schema = StructType([
+                StructField("record_id", StringType(), True),
+                StructField("source_dataset", StringType(), True),
+                StructField("source_file", StringType(), True),
+                StructField("source_snapshot", StringType(), True),
+                StructField("asset_class", StringType(), True),
+                StructField("failure_reason", StringType(), True),
+                StructField("failed_column", StringType(), True),
+                StructField("failure_detail", StringType(), True),
+                StructField("original_record", StringType(), True),
+                StructField("pipeline_run_id", StringType(), True),
+                StructField("quarantine_timestamp", TimestampType(), True),
+                StructField("snapshot_date", StringType(), True),
+            ])
+            create = (
+                spark.createDataFrame([], empty_schema)
+                .write.format("delta")
+                .mode("overwrite")
+                .option("overwriteSchema", "true")
+                .partitionBy("snapshot_date")
+            )
+            location = settings.quarantine_location("rejected_records")
+            if location:
+                create = create.option("path", location)
+            create.saveAsTable(table)
         return 0
 
     # Replace this snapshot's partition rather than appending. An append makes
     # the stage non-idempotent: re-running the same snapshot stacks another full
     # copy of its rejects, which is how 15,534 duplicate records became 77,680
     # across five runs. Earlier snapshots are untouched.
+    #
+    # Ensure snapshot_date in the replaceWhere predicate is always a plain
+    # yyyy-MM-dd string. If the Silver table stored snapshot_date as a
+    # TimestampType, the column arrives here as "2026-09-04 00:00:00" after
+    # cast("string"), which would never match the date-only predicate.
+    safe_snapshot_date = settings.snapshot_date[:10]  # "yyyy-MM-dd"
+
     if spark.catalog.tableExists(table):
         (
             df.write.format("delta")
             .mode("overwrite")
             .option(
                 "replaceWhere",
-                "snapshot_date = '{0}'".format(settings.snapshot_date),
+                "snapshot_date = '{0}'".format(safe_snapshot_date),
             )
             .option("mergeSchema", "true")
             .saveAsTable(table)
